@@ -58,9 +58,18 @@ class AppController extends Controller
                 'action' => 'login'
             ]
         ]);
-
-        // Allow the display action so our pages controller
-        // continues to work.
+        $this->loadComponent('Acl.Acl', [
+            'authorize' => [
+                /*'Acl./' => [
+                    'Permission' => ['index','synchronize'],
+                    'UserGroupPermission' => ['index','getPermission','addAjax']
+                ],*/
+                '/Admin' => [
+                    'Users' => ['login','add'],
+                ]
+            ],
+            'controllers' =>['user'=>'Users','group'=>'Groups']
+        ]);
         $this->Auth->allow(['display']);
     }
 
@@ -81,6 +90,11 @@ class AppController extends Controller
 
     public function isAuthorized($user)
     {
+        if(!$this->Acl->check()) {
+            $this->Flash->error(__('Sem permissão de acesso!'));
+            return false;
+        }
+
         return true;
     }
 }
